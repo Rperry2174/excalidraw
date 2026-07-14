@@ -27,6 +27,9 @@ Use this to make sure Excalidraw demo work goes to the correct Linear workspace/
 - Known demo tickets (filled in once created):
   - **EXCAL-1** (Cursor 101 / local agent): Add Grid Size control to the Stats panel — https://linear.app/ryan-demos/issue/EXCAL-1/add-grid-size-control-to-the-stats-panel
   - **EXCAL-2** (Cursor SDK / in-app agent): Diagram Coach sidebar powered by the Cursor SDK — https://linear.app/ryan-demos/issue/EXCAL-2/diagram-coach-sidebar-powered-by-the-cursor-sdk
+  - **EXCAL-3** (tiny / branding): Change laser pointer default color to teal — https://linear.app/ryan-demos/issue/EXCAL-3/change-laser-pointer-default-color-to-teal
+  - **EXCAL-4** (tiny / branding): Tint the Help button icon teal — https://linear.app/ryan-demos/issue/EXCAL-4/tint-the-help-button-icon-teal
+  - **EXCAL-5** (tiny / branding): Make selection outline color more visible — https://linear.app/ryan-demos/issue/EXCAL-5/make-selection-outline-color-more-visible
 
 ## Gotchas
 - The workspace slug is `ryan-demos`. Always use that.
