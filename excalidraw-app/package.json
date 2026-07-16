@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@excalidraw/random-username": "1.0.0",
+    "@excalidraw/shape-finder-protocol": "1.0.0",
     "@sentry/browser": "9.0.1",
     "callsites": "4.2.0",
     "firebase": "11.3.1",

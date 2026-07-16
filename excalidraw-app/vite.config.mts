@@ -1,4 +1,5 @@
 import path from "path";
+
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import svgrPlugin from "vite-plugin-svgr";
@@ -7,14 +8,22 @@ import { VitePWA } from "vite-plugin-pwa";
 import checker from "vite-plugin-checker";
 import { createHtmlPlugin } from "vite-plugin-html";
 import Sitemap from "vite-plugin-sitemap";
+
 import { woff2BrowserPlugin } from "../scripts/woff2/woff2-vite-plugins";
 export default defineConfig(({ mode }) => {
   // To load .env variables
-  const envVars = loadEnv(mode, `../`);
+  const envVars = loadEnv(mode, `../`, "");
   // https://vitejs.dev/config/
   return {
     server: {
       port: Number(envVars.VITE_APP_PORT || 3000),
+      proxy: {
+        "/api/shape-finder": {
+          target: envVars.SHAPE_FINDER_AGENT_URL || "http://127.0.0.1:3017",
+          changeOrigin: true,
+          ws: true,
+        },
+      },
       // open the browser
       open: true,
     },
