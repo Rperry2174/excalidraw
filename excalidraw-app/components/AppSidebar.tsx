@@ -2,18 +2,44 @@ import { DefaultSidebar, Sidebar, THEME } from "@excalidraw/excalidraw";
 import {
   messageCircleIcon,
   presentationIcon,
+  searchIcon,
 } from "@excalidraw/excalidraw/components/icons";
 import { LinkButton } from "@excalidraw/excalidraw/components/LinkButton";
 import { useUIAppState } from "@excalidraw/excalidraw/context/ui-appState";
 
+import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
+
+import { ShapeFinderPanel } from "./ShapeFinder/ShapeFinderPanel";
+
 import "./AppSidebar.scss";
 
-export const AppSidebar = () => {
+export const AppSidebar = ({
+  excalidrawAPI,
+}: {
+  excalidrawAPI: ExcalidrawImperativeAPI | null;
+}) => {
   const { theme, openSidebar } = useUIAppState();
+  const shapeFinderUrl = import.meta.env.VITE_APP_SHAPE_FINDER_URL;
+  const shapeFinder =
+    shapeFinderUrl && excalidrawAPI
+      ? { apiBaseUrl: shapeFinderUrl, excalidrawAPI }
+      : null;
 
   return (
     <DefaultSidebar>
       <DefaultSidebar.TabTriggers>
+        {shapeFinder && (
+          <Sidebar.TabTrigger
+            tab="shapeFinder"
+            aria-label="Shape Finder"
+            title="Shape Finder"
+            style={{
+              opacity: openSidebar?.tab === "shapeFinder" ? 1 : 0.4,
+            }}
+          >
+            {searchIcon}
+          </Sidebar.TabTrigger>
+        )}
         <Sidebar.TabTrigger
           tab="comments"
           style={{ opacity: openSidebar?.tab === "comments" ? 1 : 0.4 }}
@@ -27,6 +53,14 @@ export const AppSidebar = () => {
           {presentationIcon}
         </Sidebar.TabTrigger>
       </DefaultSidebar.TabTriggers>
+      {shapeFinder && (
+        <Sidebar.Tab tab="shapeFinder" className="shape-finder-tab">
+          <ShapeFinderPanel
+            excalidrawAPI={shapeFinder.excalidrawAPI}
+            apiBaseUrl={shapeFinder.apiBaseUrl}
+          />
+        </Sidebar.Tab>
+      )}
       <Sidebar.Tab tab="comments">
         <div className="app-sidebar-promo-container">
           <div

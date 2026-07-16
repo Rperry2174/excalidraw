@@ -1,0 +1,27 @@
+{
+  "name": "@excalidraw/shape-finder-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "smoke": "tsx src/smoke.ts",
+    "start": "tsx src/server.ts",
+    "test": "vitest --config vitest.config.mts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cursor/sdk": "1.0.23",
+    "@excalidraw/shape-finder-protocol": "1.0.0",
+    "dotenv": "17.4.2",
+    "ws": "8.21.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.1.1",
+    "@types/ws": "8.18.1",
+    "tsx": "4.23.1"
+  }
+}
