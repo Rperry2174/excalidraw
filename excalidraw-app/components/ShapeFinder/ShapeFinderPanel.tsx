@@ -175,12 +175,22 @@ export const ShapeFinderPanel = ({
           scene
         </a>
         <span>·</span>
-        <a
-          href="/shape-finder/reference-shape.png"
-          download="reference-shape.png"
+        <button
+          type="button"
+          onClick={async () => {
+            const response = await fetch("/shape-finder/reference-shape.png");
+            if (response.ok) {
+              const blob = await response.blob();
+              await chooseImage(
+                new File([blob], "reference-shape.png", {
+                  type: "image/png",
+                }),
+              );
+            }
+          }}
         >
-          reference PNG
-        </a>
+          use reference PNG
+        </button>
       </div>
 
       <Button

@@ -263,4 +263,85 @@ describe("Shape Finder agent server", () => {
     await new Promise((resolve) => browser.socket.once("close", resolve));
     await server.close();
   });
+
+  it("reports startup and mid-run failures separately and still waits", async () => {
+    const startupServer = createShapeFinderServer({
+      createAgent: async () => {
+        throw new Error("agent authentication failed");
+      },
+    });
+    const startupAddress = await startupServer.listen(0);
+    const startupBaseUrl = `http://127.0.0.1:${startupAddress.port}`;
+    const startupBrowser = await connectBrowser(startupBaseUrl);
+    const startupError = new Promise<Record<string, any>>((resolve) => {
+      startupBrowser.socket.on("message", (data) => {
+        const message = JSON.parse(data.toString());
+        if (message.type === "run_error") {
+          resolve(message);
+        }
+      });
+    });
+    await fetch(startupBaseUrl + SHAPE_FINDER_RUNS_PATH, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(pngRequest(startupBrowser.sessionId)),
+    });
+    await expect(startupError).resolves.toMatchObject({
+      phase: "startup",
+      message: "agent authentication failed",
+    });
+    startupBrowser.socket.close();
+    await new Promise((resolve) =>
+      startupBrowser.socket.once("close", resolve),
+    );
+    await startupServer.close();
+
+    let waitCalls = 0;
+    const midRunServer = createShapeFinderServer({
+      createAgent: async () =>
+        ({
+          async send() {
+            return {
+              async *stream() {
+                yield await Promise.reject<SDKMessage>(
+                  new Error("event stream disconnected"),
+                );
+              },
+              async wait() {
+                waitCalls += 1;
+                return {
+                  status: "error",
+                  error: { message: "run failed" },
+                } as RunResult;
+              },
+            };
+          },
+          async [Symbol.asyncDispose]() {},
+        } as ShapeFinderSdkAgent),
+    });
+    const midRunAddress = await midRunServer.listen(0);
+    const midRunBaseUrl = `http://127.0.0.1:${midRunAddress.port}`;
+    const midRunBrowser = await connectBrowser(midRunBaseUrl);
+    const midRunError = new Promise<Record<string, any>>((resolve) => {
+      midRunBrowser.socket.on("message", (data) => {
+        const message = JSON.parse(data.toString());
+        if (message.type === "run_error") {
+          resolve(message);
+        }
+      });
+    });
+    await fetch(midRunBaseUrl + SHAPE_FINDER_RUNS_PATH, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(pngRequest(midRunBrowser.sessionId)),
+    });
+    await expect(midRunError).resolves.toMatchObject({
+      phase: "mid_run",
+      message: "event stream disconnected",
+    });
+    expect(waitCalls).toBe(1);
+    midRunBrowser.socket.close();
+    await new Promise((resolve) => midRunBrowser.socket.once("close", resolve));
+    await midRunServer.close();
+  });
 });
