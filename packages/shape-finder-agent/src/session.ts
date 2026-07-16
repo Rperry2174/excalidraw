@@ -118,6 +118,10 @@ export class ShapeFinderSession {
     );
   }
 
+  public getActiveRunId() {
+    return this.activeRunId;
+  }
+
   public sendSessionReady() {
     this.send({ type: "session", sessionId: this.id });
   }
@@ -231,20 +235,26 @@ export class ShapeFinderSession {
       }
 
       const parsed = parseOutcome(result.result);
-      if (this.focusedElementId) {
-        this.send({
-          type: "run_result",
-          runId,
-          outcome: "found",
-          message: "Found 1 match · selected and centered",
-          elementId: this.focusedElementId,
-        });
-      } else if (parsed && parsed.outcome !== "found") {
+      if (parsed && parsed.outcome !== "found") {
         this.send({
           type: "run_result",
           runId,
           outcome: parsed.outcome,
           message: parsed.message,
+        });
+      } else if (parsed?.outcome === "found" || this.focusedElementId) {
+        this.send({
+          type: "run_result",
+          runId,
+          outcome: "found",
+          message:
+            parsed?.outcome === "found"
+              ? parsed.message
+              : "Found 1 match · selected and centered",
+          elementId:
+            parsed?.outcome === "found"
+              ? (parsed.elementId ?? this.focusedElementId ?? undefined)
+              : (this.focusedElementId ?? undefined),
         });
       } else {
         throw new Error("Cursor SDK returned an invalid Shape Finder result");

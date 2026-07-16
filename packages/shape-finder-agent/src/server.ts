@@ -177,8 +177,8 @@ export const createShapeFinderServer = ({
         socket.send(
           JSON.stringify({
             type: "run_error",
-            runId: randomUUID(),
-            phase: "startup",
+            runId: session.getActiveRunId() ?? randomUUID(),
+            phase: "mid_run",
             message: "Invalid browser message",
           }),
         );

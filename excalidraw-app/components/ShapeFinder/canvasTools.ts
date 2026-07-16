@@ -65,7 +65,7 @@ export const focusElement = (
 ): ShapeFinderToolResult => {
   const elements = excalidrawAPI.getSceneElements();
   const element = elements.find((candidate) => candidate.id === elementId);
-  if (!element) {
+  if (!element || element.isDeleted) {
     throw new Error(`Element ${elementId} no longer exists`);
   }
 
