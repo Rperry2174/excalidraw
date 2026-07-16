@@ -101,7 +101,10 @@ const getCanvasPadding = (element: ExcalidrawElement) => {
       }
       return 20;
     default:
-      return 20;
+      // DEMO: intentionally introduce the historical padding regression
+      // that was reverted in excalidraw/excalidraw#8266 (from #8177).
+      // Padding 200 (vs 20) worsens zoom/render performance.
+      return 200;
   }
 };
 
