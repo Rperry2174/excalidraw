@@ -1,0 +1,272 @@
+.excalidraw {
+  .shape-finder {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .shape-finder__title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .shape-finder__subtitle {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin: 0.25rem 0 0;
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.8125rem;
+  }
+
+  .shape-finder__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--color-primary);
+  }
+
+  .shape-finder__blurb {
+    margin: 0.5rem 0 0;
+    color: var(--color-gray-60);
+    line-height: 1.4;
+  }
+
+  .shape-finder__setup {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .shape-finder__link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-primary);
+    font-family: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .shape-finder__dropzone {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1.5rem 1rem;
+    border: 2px dashed var(--default-border-color);
+    border-radius: var(--border-radius-lg);
+    background: var(--island-bg-color);
+    color: var(--text-primary-color);
+    font-family: inherit;
+    text-align: center;
+    cursor: pointer;
+
+    &:hover,
+    &--active {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+    }
+  }
+
+  .shape-finder__dropzone-title {
+    font-weight: 600;
+  }
+
+  .shape-finder__dropzone-hint {
+    color: var(--color-gray-60);
+    font-size: 0.75rem;
+  }
+
+  .shape-finder__file-input {
+    display: none;
+  }
+
+  .shape-finder__preview {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border: 1px solid var(--default-border-color);
+    border-radius: var(--border-radius-lg);
+    background: var(--island-bg-color);
+  }
+
+  .shape-finder__thumb {
+    width: 4rem;
+    height: 4rem;
+    object-fit: contain;
+    border-radius: var(--border-radius-md);
+    background: #fff;
+  }
+
+  .shape-finder__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+  }
+
+  .shape-finder__filename {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .shape-finder__dimensions {
+    color: var(--color-gray-60);
+    font-size: 0.75rem;
+  }
+
+  .shape-finder__remove {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    display: flex;
+    padding: 0.25rem;
+    border: none;
+    border-radius: var(--border-radius-md);
+    background: none;
+    color: var(--color-gray-60);
+    cursor: pointer;
+
+    svg {
+      width: 0.875rem;
+      height: 0.875rem;
+    }
+
+    &:hover {
+      background: var(--button-hover-bg);
+    }
+  }
+
+  .shape-finder__find.excalidraw-button {
+    height: 2.5rem;
+    border-radius: var(--border-radius-lg);
+    background: var(--color-primary);
+    color: #fff;
+    font-size: 0.9375rem;
+    font-weight: 600;
+
+    &:hover:not(:disabled) {
+      background: var(--color-primary-darker);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .shape-finder__run-title {
+    margin-bottom: 0.5rem;
+    color: var(--color-gray-60);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .shape-finder__timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .shape-finder__step {
+    display: flex;
+    gap: 0.625rem;
+    align-items: flex-start;
+  }
+
+  .shape-finder__step-badge {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    background: var(--color-gray-20);
+    color: var(--color-gray-60);
+    font-size: 0.6875rem;
+    font-weight: 700;
+  }
+
+  .shape-finder__step-body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .shape-finder__step-label {
+    font-weight: 600;
+  }
+
+  .shape-finder__step-hint {
+    color: var(--color-gray-60);
+    font-size: 0.6875rem;
+  }
+
+  .shape-finder__step--pending {
+    opacity: 0.45;
+  }
+
+  .shape-finder__step--running .shape-finder__step-badge {
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+
+  .shape-finder__step--completed .shape-finder__step-badge {
+    background: var(--color-primary);
+    color: #fff;
+  }
+
+  .shape-finder__step--error .shape-finder__step-badge {
+    background: var(--color-danger);
+    color: #fff;
+  }
+
+  .shape-finder__verdict {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    border-radius: var(--border-radius-lg);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .shape-finder__verdict--match {
+    background: var(--color-success);
+    color: var(--color-success-text);
+  }
+
+  .shape-finder__verdict--no-match,
+  .shape-finder__verdict--ambiguous {
+    background: var(--color-warning-background);
+    color: var(--color-warning-dark);
+  }
+
+  .shape-finder__verdict--failure {
+    background: var(--color-danger-background);
+    color: var(--color-danger-color);
+  }
+
+  .shape-finder__verdict-hint {
+    font-weight: 400;
+    font-size: 0.75rem;
+  }
+}

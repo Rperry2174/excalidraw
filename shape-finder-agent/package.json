@@ -1,0 +1,24 @@
+{
+  "name": "shape-finder-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local Cursor SDK agent that backs the Excalidraw Shape Finder sidebar.",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "prettier": "@excalidraw/prettier-config",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "test:typecheck": "tsc"
+  },
+  "dependencies": {
+    "@cursor/sdk": "1.0.24",
+    "dotenv": "16.0.1",
+    "ws": "8.18.0"
+  },
+  "devDependencies": {
+    "@types/ws": "8.5.13",
+    "tsx": "4.19.2"
+  }
+}

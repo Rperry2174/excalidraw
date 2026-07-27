@@ -23,6 +23,7 @@ package-lock.json
 yarn-debug.log*
 yarn-error.log*
 packages/excalidraw/types
+shape-finder-agent/.agent-cwd
 coverage
 dev-dist
 html
