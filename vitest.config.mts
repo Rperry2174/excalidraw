@@ -70,6 +70,13 @@ export default defineConfig({
         find: /^@excalidraw\/laser-pointer\/(.*?)/,
         replacement: path.resolve(__dirname, "./packages/laser-pointer/src/$1"),
       },
+      {
+        find: /^@shape-finder\/protocol$/,
+        replacement: path.resolve(
+          __dirname,
+          "./shape-finder-agent/src/protocol.ts",
+        ),
+      },
     ],
   },
   //@ts-ignore

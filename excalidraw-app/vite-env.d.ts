@@ -38,6 +38,9 @@ interface ImportMetaEnv {
 
   VITE_APP_GIT_SHA: string;
 
+  // localhost bridge exposed by the `shape-finder-agent` workspace
+  VITE_SHAPE_FINDER_AGENT_URL: string;
+
   MODE: string;
 
   DEV: string;
