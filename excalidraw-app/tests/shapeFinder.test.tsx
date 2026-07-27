@@ -209,6 +209,31 @@ describe("Shape Finder canvas tools", () => {
     });
   });
 
+  it("selects the remaining element of a single-member group by element id", () => {
+    act(() => {
+      excalidrawAPI.updateScene({
+        elements: [
+          API.createElement({
+            type: "ellipse",
+            id: "lonely-circle",
+            groupIds: ["lonely-group"],
+          }),
+        ],
+      });
+    });
+
+    let result!: ReturnType<typeof focusElement>;
+    act(() => {
+      result = focusElement(excalidrawAPI, "lonely-group");
+    });
+
+    expect(result.elementIds).toEqual(["lonely-circle"]);
+    expect(excalidrawAPI.getAppState().selectedElementIds).toEqual({
+      "lonely-circle": true,
+    });
+    expect(excalidrawAPI.getAppState().selectedGroupIds).toEqual({});
+  });
+
   it("refuses to focus an id that is not on the canvas", () => {
     expect(() => focusElement(excalidrawAPI, "shape-99")).toThrow(
       /No candidate with id "shape-99"/,

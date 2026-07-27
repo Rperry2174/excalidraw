@@ -87,6 +87,9 @@ export const focusElement = (
   }
 
   const appState = api.getAppState();
+  // Candidate ids are outermost group ids when the element is grouped, even if
+  // the group currently has a single member — so selection must use element ids
+  // whenever there is only one member (selectGroup also refuses <2 members).
   const isGroup = candidate.elements.length > 1;
 
   const selection = isGroup
@@ -97,7 +100,7 @@ export const focusElement = (
       )
     : {
         selectedElementIds: makeNextSelectedElementIds(
-          { [candidateId]: true },
+          { [candidate.elements[0].id]: true },
           appState,
         ),
         selectedGroupIds: {},
