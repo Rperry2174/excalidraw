@@ -1,6 +1,10 @@
+import {
+  DEFAULT_SHAPE_FINDER_AGENT_URL,
+  SHAPE_FINDER_TOOLS,
+} from "@shape-finder/protocol";
+
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 
-import { DEFAULT_SHAPE_FINDER_AGENT_URL, SHAPE_FINDER_TOOLS } from "./protocol";
 import { focusElement, getElementThumbnails } from "./tools";
 
 import type {
@@ -10,7 +14,7 @@ import type {
   ReferenceImage,
   RunEvent,
   RunFailurePhase,
-} from "./protocol";
+} from "@shape-finder/protocol";
 
 export const SHAPE_FINDER_AGENT_URL =
   import.meta.env.VITE_SHAPE_FINDER_AGENT_URL || DEFAULT_SHAPE_FINDER_AGENT_URL;

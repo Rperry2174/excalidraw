@@ -1,13 +1,12 @@
 import { Agent, CursorAgentError } from "@cursor/sdk";
 
+import { config } from "./config.js";
+import { FIND_PROMPT } from "./prompt.js";
 import {
   SHAPE_FINDER_PROTOCOL_VERSION,
   SHAPE_FINDER_TOOLS,
   parseFindOutcome,
-} from "../../excalidraw-app/shape-finder/protocol.js";
-
-import { config } from "./config.js";
-import { FIND_PROMPT } from "./prompt.js";
+} from "./protocol.js";
 
 import type {
   AgentToBrowserMessage,
@@ -19,7 +18,7 @@ import type {
   RunStepId,
   RunStepStatus,
   ShapeFinderToolName,
-} from "../../excalidraw-app/shape-finder/protocol.js";
+} from "./protocol.js";
 import type {
   Run,
   SDKAgent,

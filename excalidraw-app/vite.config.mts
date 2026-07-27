@@ -89,6 +89,15 @@ export default defineConfig(({ mode }) => {
             "../packages/laser-pointer/src/index.ts",
           ),
         },
+        // wire contract owned by the Node-side Shape Finder agent; the sidebar
+        // is its client, so both sides compile the same file
+        {
+          find: /^@shape-finder\/protocol$/,
+          replacement: path.resolve(
+            __dirname,
+            "../shape-finder-agent/src/protocol.ts",
+          ),
+        },
       ],
     },
     build: {

@@ -1,4 +1,4 @@
-import { SHAPE_FINDER_TOOLS } from "../../excalidraw-app/shape-finder/protocol.js";
+import { SHAPE_FINDER_TOOLS } from "./protocol.js";
 
 /**
  * The verdict line is parsed by `parseFindOutcome`, so the wording here and the

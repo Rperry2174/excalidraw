@@ -3,6 +3,8 @@ import { Excalidraw } from "@excalidraw/excalidraw";
 import { API } from "@excalidraw/excalidraw/tests/helpers/api";
 import { act, render } from "@excalidraw/excalidraw/tests/test-utils";
 
+import { parseFindOutcome } from "@shape-finder/protocol";
+
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 
 import type { NonDeletedExcalidrawElement } from "@excalidraw/element/types";
@@ -12,7 +14,6 @@ import {
   findSceneCandidate,
 } from "../shape-finder/candidates";
 import { createShapeFinderDemoElements } from "../shape-finder/demoScene";
-import { parseFindOutcome } from "../shape-finder/protocol";
 import { focusElement, getElementThumbnails } from "../shape-finder/tools";
 
 describe("resolveSceneCandidates", () => {

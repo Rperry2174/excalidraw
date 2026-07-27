@@ -19,7 +19,7 @@ import type {
   RunEvent,
   RunStepId,
   RunStepStatus,
-} from "../shape-finder/protocol";
+} from "@shape-finder/protocol";
 
 const SAMPLE_REFERENCE_URL = "/shape-finder-reference.png";
 
@@ -107,6 +107,20 @@ const pickImageFile = (items: FileList | DataTransferItemList | null) => {
 
   return null;
 };
+
+/** A step that was still in flight when the run died is the one that broke, so
+ * it should read as failed rather than sit spinning forever. */
+const markRunningStepsAsFailed = (
+  steps: Partial<Record<RunStepId, StepState>>,
+) =>
+  Object.fromEntries(
+    Object.entries(steps).map(([id, state]) => [
+      id,
+      state.status === "running"
+        ? { ...state, status: "error" as const }
+        : state,
+    ]),
+  );
 
 const describeOutcome = (outcome: FindOutcome) => {
   switch (outcome.kind) {
@@ -222,6 +236,7 @@ export const ShapeFinderTab = () => {
           setPhase("settled");
         },
         onFailed: (failurePhase, message) => {
+          setSteps(markRunningStepsAsFailed);
           setVerdict({ kind: "failure", phase: failurePhase, message });
           setPhase("settled");
         },

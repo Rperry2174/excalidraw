@@ -13,7 +13,7 @@ import { findSceneCandidate, resolveSceneCandidates } from "./candidates";
 import type {
   FocusElementResult,
   GetElementThumbnailsResult,
-} from "./protocol";
+} from "@shape-finder/protocol";
 
 /** Large enough for the model to tell the shapes apart, small enough to keep
  * the tool payload well under the message size the agent will accept. */

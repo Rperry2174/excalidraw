@@ -8,7 +8,9 @@
 
 export const SHAPE_FINDER_PROTOCOL_VERSION = 1;
 
-export const DEFAULT_SHAPE_FINDER_AGENT_URL = "ws://localhost:3010";
+/** Matches the agent's bind address exactly so the client cannot end up on a
+ * `localhost` alias (e.g. `::1`) that nothing is listening on. */
+export const DEFAULT_SHAPE_FINDER_AGENT_URL = "ws://127.0.0.1:3010";
 
 export const SHAPE_FINDER_TOOLS = {
   getElementThumbnails: "get_element_thumbnails",

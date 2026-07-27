@@ -149,8 +149,12 @@
     }
   }
 
+  // the shared button mixin sizes itself as an icon square, so the width and
+  // height have to be reclaimed for a full-width labelled action
   .shape-finder__find.excalidraw-button {
+    width: 100%;
     height: 2.5rem;
+    border-color: transparent;
     border-radius: var(--border-radius-lg);
     background: var(--color-primary);
     color: #fff;
@@ -159,6 +163,8 @@
 
     &:hover:not(:disabled) {
       background: var(--color-primary-darker);
+      border-color: transparent;
+      color: #fff;
     }
 
     &:disabled {
