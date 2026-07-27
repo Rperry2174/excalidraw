@@ -116,7 +116,9 @@ export const focusElement = (
     target: candidate.elements,
     fit: "scale-down",
     animation: { duration: FOCUS_ANIMATION_DURATION },
-    offsets: { ui: true },
+    // selecting the candidate is what opens the styles panel, so its space has
+    // to be reserved here — it is still hidden while these offsets are measured
+    offsets: { ui: { reserve: { stylesPanel: true } } },
   });
 
   const [minX, minY, maxX, maxY] = getCommonBounds(candidate.elements);

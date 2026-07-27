@@ -193,6 +193,23 @@ describe("Shape Finder canvas tools", () => {
     expect(after.strokeColor).toBe(before.strokeColor);
   });
 
+  it("reserves room for the styles panel the selection is about to open", () => {
+    const setViewport = vi.spyOn(excalidrawAPI, "setViewport");
+
+    act(() => {
+      focusElement(excalidrawAPI, "shape-03");
+    });
+
+    expect(setViewport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fit: "scale-down",
+        offsets: { ui: { reserve: { stylesPanel: true } } },
+      }),
+    );
+
+    setViewport.mockRestore();
+  });
+
   it("selects every member of a grouped candidate", () => {
     let result!: ReturnType<typeof focusElement>;
     act(() => {
