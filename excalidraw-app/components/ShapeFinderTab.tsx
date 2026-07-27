@@ -250,6 +250,15 @@ export const ShapeFinderTab = () => {
 
   const onUseSample = useCallback(async () => {
     const response = await fetch(SAMPLE_REFERENCE_URL);
+    if (!response.ok) {
+      setVerdict({
+        kind: "failure",
+        phase: "startup",
+        message: `Could not load the sample PNG (${response.status}).`,
+      });
+      setPhase("settled");
+      return;
+    }
     const blob = await response.blob();
     await acceptFile(
       new File([blob], "reference-shape.png", { type: MIME_TYPES.png }),

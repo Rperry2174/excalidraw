@@ -414,9 +414,13 @@ export class ShapeFinderSession {
     const parsed = parseFindOutcome(finalText);
 
     // The tool call is the ground truth for what the canvas actually shows, so
-    // a focused candidate wins over an unparseable or contradictory reply.
+    // a focused candidate wins over an unparseable or contradictory reply. A
+    // text-only MATCH without focus_element never updated the canvas, so it
+    // cannot be reported as a match.
     const outcome: FindOutcome | null = this.focusedCandidateId
       ? { kind: "match", candidateId: this.focusedCandidateId }
+      : parsed?.kind === "match"
+      ? null
       : parsed;
 
     if (!outcome) {
@@ -424,9 +428,12 @@ export class ShapeFinderSession {
         type: "run-failed",
         requestId,
         phase: "run",
-        message: `The agent finished without a verdict: ${
-          finalText || "(empty reply)"
-        }`,
+        message:
+          parsed?.kind === "match"
+            ? "The agent reported a match without focusing a candidate on the canvas."
+            : `The agent finished without a verdict: ${
+                finalText || "(empty reply)"
+              }`,
       });
       return;
     }
