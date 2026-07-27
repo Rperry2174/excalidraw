@@ -281,7 +281,9 @@ export const ShapeFinderTab = () => {
   }, [acceptFile]);
 
   return (
-    <div className="shape-finder" ref={panelRef}>
+    // focusable so that clicking anywhere in the panel routes the next paste
+    // through the listener below instead of to the canvas
+    <div className="shape-finder" ref={panelRef} tabIndex={-1}>
       <div className="shape-finder__intro">
         <h2 className="shape-finder__title">Shape Finder</h2>
         <p className="shape-finder__subtitle">
