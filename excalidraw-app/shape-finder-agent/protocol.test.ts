@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  SHAPE_FINDER_MAX_DESCRIPTION_LENGTH,
   SHAPE_FINDER_MAX_IMAGE_BYTES,
   classifyShapeFinderOutcome,
   parseShapeFinderClientMessage,
@@ -8,14 +9,32 @@ import {
 } from "./protocol";
 
 describe("Shape Finder bridge protocol", () => {
-  it("accepts PNG find requests and RPC responses", () => {
+  it("accepts image, description, and RPC responses", () => {
     expect(
       parseShapeFinderClientMessage({
         type: "find",
         requestId: "request-1",
-        image: { data: "cG5n", mimeType: "image/png" },
+        input: {
+          type: "image",
+          data: "cG5n",
+          mimeType: "image/png",
+        },
       }),
     ).toMatchObject({ type: "find", requestId: "request-1" });
+
+    expect(
+      parseShapeFinderClientMessage({
+        type: "find",
+        requestId: "request-2",
+        input: {
+          type: "description",
+          text: "the orange oval near the top",
+        },
+      }),
+    ).toMatchObject({
+      type: "find",
+      input: { type: "description" },
+    });
 
     expect(
       parseShapeFinderClientMessage({
@@ -31,7 +50,7 @@ describe("Shape Finder bridge protocol", () => {
       parseShapeFinderClientMessage({
         type: "find",
         requestId: "request-1",
-        image: { data: "data", mimeType: "image/jpeg" },
+        input: { type: "image", data: "data", mimeType: "image/jpeg" },
       }),
     ).toThrow("PNG images only");
 
@@ -39,7 +58,8 @@ describe("Shape Finder bridge protocol", () => {
       parseShapeFinderClientMessage({
         type: "find",
         requestId: "request-1",
-        image: {
+        input: {
+          type: "image",
           data: "a".repeat(
             Math.ceil((SHAPE_FINDER_MAX_IMAGE_BYTES * 4) / 3) + 1,
           ),
@@ -47,6 +67,27 @@ describe("Shape Finder bridge protocol", () => {
         },
       }),
     ).toThrow("5 MB or smaller");
+  });
+
+  it("rejects empty and oversized descriptions", () => {
+    expect(() =>
+      parseShapeFinderClientMessage({
+        type: "find",
+        requestId: "request-1",
+        input: { type: "description", text: "   " },
+      }),
+    ).toThrow("between 1 and 500 characters");
+
+    expect(() =>
+      parseShapeFinderClientMessage({
+        type: "find",
+        requestId: "request-1",
+        input: {
+          type: "description",
+          text: "a".repeat(SHAPE_FINDER_MAX_DESCRIPTION_LENGTH + 1),
+        },
+      }),
+    ).toThrow("between 1 and 500 characters");
   });
 
   it("validates browser RPC requests before execution", () => {

@@ -1,5 +1,6 @@
 export const SHAPE_FINDER_PORT = 3020;
 export const SHAPE_FINDER_MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+export const SHAPE_FINDER_MAX_DESCRIPTION_LENGTH = 500;
 
 export type ShapeFinderTimelineStep =
   | "received"
@@ -36,16 +37,24 @@ export type ShapeFinderThumbnail = {
   height: number;
 };
 
+export type ShapeFinderSearchInput =
+  | {
+      type: "image";
+      data: string;
+      mimeType: "image/png";
+    }
+  | {
+      type: "description";
+      text: string;
+    };
+
 export type ShapeFinderRpcMethod = "get_element_thumbnails" | "focus_element";
 
 export type ShapeFinderClientMessage =
   | {
       type: "find";
       requestId: string;
-      image: {
-        data: string;
-        mimeType: "image/png";
-      };
+      input: ShapeFinderSearchInput;
     }
   | {
       type: "rpc_result";
@@ -122,21 +131,36 @@ export const parseShapeFinderClientMessage = (
   }
 
   if (value.type === "find") {
-    if (!hasString(value, "requestId") || !isRecord(value.image)) {
-      throw new Error("Find requests require a request id and image.");
+    if (!hasString(value, "requestId") || !isRecord(value.input)) {
+      throw new Error("Find requests require a request id and search input.");
     }
-    if (
-      value.image.mimeType !== "image/png" ||
-      typeof value.image.data !== "string" ||
-      value.image.data === ""
-    ) {
-      throw new Error("Shape Finder accepts non-empty PNG images only.");
-    }
-    if (
-      Math.ceil((value.image.data.length * 3) / 4) >
-      SHAPE_FINDER_MAX_IMAGE_BYTES
-    ) {
-      throw new Error("Reference PNG must be 5 MB or smaller.");
+
+    if (value.input.type === "image") {
+      if (
+        value.input.mimeType !== "image/png" ||
+        typeof value.input.data !== "string" ||
+        value.input.data === ""
+      ) {
+        throw new Error("Shape Finder accepts non-empty PNG images only.");
+      }
+      if (
+        Math.ceil((value.input.data.length * 3) / 4) >
+        SHAPE_FINDER_MAX_IMAGE_BYTES
+      ) {
+        throw new Error("Reference PNG must be 5 MB or smaller.");
+      }
+    } else if (value.input.type === "description") {
+      if (
+        typeof value.input.text !== "string" ||
+        !value.input.text.trim() ||
+        value.input.text.length > SHAPE_FINDER_MAX_DESCRIPTION_LENGTH
+      ) {
+        throw new Error(
+          "Shape descriptions must be between 1 and 500 characters.",
+        );
+      }
+    } else {
+      throw new Error("Unsupported Shape Finder search input.");
     }
     return value as ShapeFinderClientMessage;
   }

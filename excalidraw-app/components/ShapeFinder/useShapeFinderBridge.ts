@@ -3,11 +3,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 
 import {
+  SHAPE_FINDER_MAX_DESCRIPTION_LENGTH,
   SHAPE_FINDER_MAX_IMAGE_BYTES,
   SHAPE_FINDER_PORT,
   parseShapeFinderServerMessage,
   type ShapeFinderClientMessage,
   type ShapeFinderOutcome,
+  type ShapeFinderSearchInput,
   type ShapeFinderTimelineStatus,
   type ShapeFinderTimelineStep,
 } from "../../shape-finder-agent/protocol";
@@ -37,10 +39,20 @@ export type ShapeFinderRunError = {
   message: string;
 };
 
+export type ShapeFinderSearchRequest =
+  | {
+      type: "image";
+      file: File;
+    }
+  | {
+      type: "description";
+      text: string;
+    };
+
 const createTimeline = (): ShapeFinderTimelineItem[] => [
   {
     step: "received",
-    label: "Received reference PNG",
+    label: "Received search input",
     status: "pending",
   },
   {
@@ -250,23 +262,34 @@ export const useShapeFinderBridge = (
   }, [send]);
 
   const startSearch = useCallback(
-    async (file: File) => {
+    async (search: ShapeFinderSearchRequest) => {
       setResult(null);
       setRunError(null);
       setAssistantText("");
       setTimeline(createTimeline());
 
-      if (file.type !== "image/png") {
+      if (search.type === "image") {
+        if (search.file.type !== "image/png") {
+          setRunError({
+            phase: "startup",
+            message: "Shape Finder accepts PNG files only.",
+          });
+          return;
+        }
+        if (search.file.size > SHAPE_FINDER_MAX_IMAGE_BYTES) {
+          setRunError({
+            phase: "startup",
+            message: "Reference PNG must be 5 MB or smaller.",
+          });
+          return;
+        }
+      } else if (
+        !search.text.trim() ||
+        search.text.length > SHAPE_FINDER_MAX_DESCRIPTION_LENGTH
+      ) {
         setRunError({
           phase: "startup",
-          message: "Shape Finder accepts PNG files only.",
-        });
-        return;
-      }
-      if (file.size > SHAPE_FINDER_MAX_IMAGE_BYTES) {
-        setRunError({
-          phase: "startup",
-          message: "Reference PNG must be 5 MB or smaller.",
+          message: "Enter a description between 1 and 500 characters.",
         });
         return;
       }
@@ -284,13 +307,21 @@ export const useShapeFinderBridge = (
       setIsRunning(true);
 
       try {
+        const input: ShapeFinderSearchInput =
+          search.type === "image"
+            ? {
+                type: "image",
+                data: await fileToBase64(search.file),
+                mimeType: "image/png",
+              }
+            : {
+                type: "description",
+                text: search.text.trim(),
+              };
         send({
           type: "find",
           requestId,
-          image: {
-            data: await fileToBase64(file),
-            mimeType: "image/png",
-          },
+          input,
         });
       } catch (error) {
         activeRequestIdRef.current = null;

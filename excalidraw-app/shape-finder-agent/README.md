@@ -1,6 +1,6 @@
 # Shape Finder agent
 
-The Shape Finder demo uses a local Node service so `CURSOR_API_KEY` never enters the browser bundle.
+The Shape Finder demo compares either a reference PNG or a text description with live canvas thumbnails. It uses a local Node service so `CURSOR_API_KEY` never enters the browser bundle.
 
 Requirements:
 

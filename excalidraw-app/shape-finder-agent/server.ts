@@ -10,6 +10,7 @@ import {
   SHAPE_FINDER_PORT,
   classifyShapeFinderOutcome,
   parseShapeFinderClientMessage,
+  type ShapeFinderSearchInput,
   type ShapeFinderServerMessage,
   type ShapeFinderThumbnail,
 } from "./protocol";
@@ -118,12 +119,17 @@ const validateFocusResult = (value: unknown): BrowserFocusResult => {
   return value as BrowserFocusResult;
 };
 
-const buildPrompt =
-  () => `Find the canvas element that visually matches the reference PNG.
+const buildPrompt = (
+  input: ShapeFinderSearchInput,
+) => `Find the canvas element that visually matches ${
+  input.type === "image"
+    ? "the attached reference PNG"
+    : `this description: "${input.text.trim()}"`
+}.
 
 Follow these rules exactly:
 1. Call get_element_thumbnails once to inspect every visual candidate.
-2. Compare the reference PNG with the returned candidate images.
+2. Compare the reference image or description with the returned candidate images.
 3. If exactly one candidate is a confident visual match, call focus_element once with its exact elementId.
 4. If no candidate matches, do not call focus_element and start the final response with "NO_MATCH:".
 5. If multiple candidates could match, do not call focus_element and start the final response with "AMBIGUOUS:".
@@ -309,7 +315,7 @@ const handleConnection = (socket: WebSocket) => {
 
   const runShapeFinder = async (
     requestId: string,
-    image: { data: string; mimeType: "image/png" },
+    input: ShapeFinderSearchInput,
   ) => {
     let agent: SDKAgent | null = null;
     let runCreated = false;
@@ -320,7 +326,10 @@ const handleConnection = (socket: WebSocket) => {
       type: "timeline",
       step: "received",
       status: "completed",
-      detail: "Received reference PNG",
+      detail:
+        input.type === "image"
+          ? "Received reference PNG"
+          : "Received description",
     });
 
     try {
@@ -340,10 +349,19 @@ const handleConnection = (socket: WebSocket) => {
         },
       });
 
-      activeRun = await agent.send({
-        text: buildPrompt(),
-        images: [image],
-      });
+      activeRun = await agent.send(
+        input.type === "image"
+          ? {
+              text: buildPrompt(input),
+              images: [
+                {
+                  data: input.data,
+                  mimeType: input.mimeType,
+                },
+              ],
+            }
+          : buildPrompt(input),
+      );
       runCreated = true;
       send({
         type: "run_started",
@@ -450,7 +468,7 @@ const handleConnection = (socket: WebSocket) => {
       return;
     }
 
-    void runShapeFinder(message.requestId, message.image);
+    void runShapeFinder(message.requestId, message.input);
   });
 
   socket.on("close", () => {
