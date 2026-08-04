@@ -8,8 +8,8 @@ import { WebSocket, WebSocketServer } from "ws";
 
 import {
   SHAPE_FINDER_PORT,
+  classifyShapeFinderOutcome,
   parseShapeFinderClientMessage,
-  type ShapeFinderOutcome,
   type ShapeFinderServerMessage,
   type ShapeFinderThumbnail,
 } from "./protocol";
@@ -116,19 +116,6 @@ const validateFocusResult = (value: unknown): BrowserFocusResult => {
   }
 
   return value as BrowserFocusResult;
-};
-
-const classifyOutcome = (
-  focusedElementId: string | undefined,
-  result: string,
-): ShapeFinderOutcome => {
-  if (focusedElementId) {
-    return "found";
-  }
-
-  return /\bambiguous\b|\bmultiple (?:matches|candidates)\b/i.test(result)
-    ? "ambiguous"
-    : "no_match";
 };
 
 const buildPrompt =
@@ -393,7 +380,7 @@ const handleConnection = (socket: WebSocket) => {
       }
 
       const finalText = result.result?.trim() || "No matching element found.";
-      const outcome = classifyOutcome(focusedElementId, finalText);
+      const outcome = classifyShapeFinderOutcome(focusedElementId, finalText);
       send({
         type: "run_result",
         requestId,

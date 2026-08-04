@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   SHAPE_FINDER_MAX_IMAGE_BYTES,
+  classifyShapeFinderOutcome,
   parseShapeFinderClientMessage,
   parseShapeFinderServerMessage,
 } from "./protocol";
@@ -66,5 +67,18 @@ describe("Shape Finder bridge protocol", () => {
         params: {},
       }),
     ).toThrow("Invalid Shape Finder RPC request");
+  });
+
+  it("classifies found, no-match, and ambiguous terminal states", () => {
+    expect(classifyShapeFinderOutcome("shape-06", "Finished")).toBe("found");
+    expect(classifyShapeFinderOutcome(undefined, "NO_MATCH: none")).toBe(
+      "no_match",
+    );
+    expect(
+      classifyShapeFinderOutcome(
+        undefined,
+        "AMBIGUOUS: multiple candidates match",
+      ),
+    ).toBe("ambiguous");
   });
 });

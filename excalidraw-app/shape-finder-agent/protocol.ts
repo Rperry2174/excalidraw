@@ -15,6 +15,19 @@ export type ShapeFinderTimelineStatus =
 
 export type ShapeFinderOutcome = "found" | "no_match" | "ambiguous";
 
+export const classifyShapeFinderOutcome = (
+  focusedElementId: string | undefined,
+  result: string,
+): ShapeFinderOutcome => {
+  if (focusedElementId) {
+    return "found";
+  }
+
+  return /\bambiguous\b|\bmultiple (?:matches|candidates)\b/i.test(result)
+    ? "ambiguous"
+    : "no_match";
+};
+
 export type ShapeFinderThumbnail = {
   elementId: string;
   data: string;
