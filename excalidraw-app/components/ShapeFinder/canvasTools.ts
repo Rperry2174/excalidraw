@@ -93,8 +93,12 @@ export const focusElement = (
         element.groupIds.some((groupId) => targetGroupIds.has(groupId)),
       )
     : [target];
-  const selectedElementIds = Object.fromEntries(
-    focusedElements.map((element) => [element.id, true]),
+  const selectedElementIds = focusedElements.reduce<Record<string, true>>(
+    (selectedIds, element) => {
+      selectedIds[element.id] = true;
+      return selectedIds;
+    },
+    {},
   );
 
   excalidrawAPI.updateScene({
