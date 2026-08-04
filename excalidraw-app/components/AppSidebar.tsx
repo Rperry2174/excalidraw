@@ -1,10 +1,13 @@
 import { DefaultSidebar, Sidebar, THEME } from "@excalidraw/excalidraw";
 import {
+  ImageIcon,
   messageCircleIcon,
   presentationIcon,
 } from "@excalidraw/excalidraw/components/icons";
 import { LinkButton } from "@excalidraw/excalidraw/components/LinkButton";
 import { useUIAppState } from "@excalidraw/excalidraw/context/ui-appState";
+
+import { ShapeFinderTab } from "./ShapeFinder/ShapeFinderTab";
 
 import "./AppSidebar.scss";
 
@@ -25,6 +28,14 @@ export const AppSidebar = () => {
           style={{ opacity: openSidebar?.tab === "presentation" ? 1 : 0.4 }}
         >
           {presentationIcon}
+        </Sidebar.TabTrigger>
+        <Sidebar.TabTrigger
+          tab="shape-finder"
+          aria-label="Shape Finder"
+          title="Shape Finder"
+          style={{ opacity: openSidebar?.tab === "shape-finder" ? 1 : 0.4 }}
+        >
+          {ImageIcon}
         </Sidebar.TabTrigger>
       </DefaultSidebar.TabTriggers>
       <Sidebar.Tab tab="comments">
@@ -73,6 +84,9 @@ export const AppSidebar = () => {
             Sign up now
           </LinkButton>
         </div>
+      </Sidebar.Tab>
+      <Sidebar.Tab tab="shape-finder">
+        <ShapeFinderTab />
       </Sidebar.Tab>
     </DefaultSidebar>
   );
