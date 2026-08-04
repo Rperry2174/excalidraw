@@ -1,7 +1,4 @@
-import {
-  exportToCanvas,
-  getCommonBounds,
-} from "@excalidraw/excalidraw";
+import { exportToCanvas, getCommonBounds } from "@excalidraw/excalidraw";
 
 import type { NonDeletedExcalidrawElement } from "@excalidraw/element/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
@@ -48,9 +45,7 @@ export const getShapeFinderCandidates = (
 export const getElementThumbnails = async (
   excalidrawAPI: ExcalidrawImperativeAPI,
 ) => {
-  const candidates = getShapeFinderCandidates(
-    excalidrawAPI.getSceneElements(),
-  );
+  const candidates = getShapeFinderCandidates(excalidrawAPI.getSceneElements());
   const files = excalidrawAPI.getFiles();
 
   const thumbnails: ShapeFinderThumbnail[] = [];

@@ -23,9 +23,7 @@ export type ShapeFinderThumbnail = {
   height: number;
 };
 
-export type ShapeFinderRpcMethod =
-  | "get_element_thumbnails"
-  | "focus_element";
+export type ShapeFinderRpcMethod = "get_element_thumbnails" | "focus_element";
 
 export type ShapeFinderClientMessage =
   | {

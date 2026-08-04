@@ -14,12 +14,7 @@ import {
   type ShapeFinderThumbnail,
 } from "./protocol";
 
-import type {
-  Run,
-  SDKAgent,
-  SDKCustomTool,
-  SDKMessage,
-} from "@cursor/sdk";
+import type { Run, SDKAgent, SDKCustomTool, SDKMessage } from "@cursor/sdk";
 
 const AGENT_DIRECTORY = dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = resolve(AGENT_DIRECTORY, "../..");
@@ -37,9 +32,7 @@ if (!apiKey) {
   );
 }
 
-const port = Number(
-  process.env.SHAPE_FINDER_AGENT_PORT || SHAPE_FINDER_PORT,
-);
+const port = Number(process.env.SHAPE_FINDER_AGENT_PORT || SHAPE_FINDER_PORT);
 if (!Number.isInteger(port) || port < 1 || port > 65_535) {
   throw new Error("SHAPE_FINDER_AGENT_PORT must be a valid port number.");
 }
@@ -138,7 +131,8 @@ const classifyOutcome = (
     : "no_match";
 };
 
-const buildPrompt = () => `Find the canvas element that visually matches the reference PNG.
+const buildPrompt =
+  () => `Find the canvas element that visually matches the reference PNG.
 
 Follow these rules exactly:
 1. Call get_element_thumbnails once to inspect every visual candidate.
@@ -409,8 +403,8 @@ const handleConnection = (socket: WebSocket) => {
           outcome === "found"
             ? `Found 1 match · ${focusedElementId} selected and centered`
             : outcome === "ambiguous"
-              ? "Ambiguous match · canvas unchanged"
-              : "No matches · canvas unchanged",
+            ? "Ambiguous match · canvas unchanged"
+            : "No matches · canvas unchanged",
       });
     } catch (error) {
       send({
@@ -475,7 +469,9 @@ const handleConnection = (socket: WebSocket) => {
   socket.on("close", () => {
     for (const pending of pendingRpc.values()) {
       clearTimeout(pending.timeout);
-      pending.reject(new Error("Browser disconnected during Shape Finder run."));
+      pending.reject(
+        new Error("Browser disconnected during Shape Finder run."),
+      );
     }
     pendingRpc.clear();
     if (activeRun?.supports("cancel")) {
