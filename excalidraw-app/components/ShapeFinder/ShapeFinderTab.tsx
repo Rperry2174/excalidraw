@@ -12,6 +12,7 @@ import { FilledButton } from "@excalidraw/excalidraw/components/FilledButton";
 import { ImageIcon } from "@excalidraw/excalidraw/components/icons";
 
 import { SHAPE_FINDER_MAX_IMAGE_BYTES } from "../../shape-finder-agent/protocol";
+
 import {
   loadShapeFinderDemoScene,
   loadShapeFinderReferenceFile,
@@ -62,7 +63,7 @@ export const ShapeFinderTab = () => {
     return () => URL.revokeObjectURL(nextPreviewUrl);
   }, [referenceFile]);
 
-  const useReferenceFile = useCallback(
+  const selectReferenceFile = useCallback(
     (file: File) => {
       if (file.type !== "image/png") {
         setFileError("Choose a PNG image.");
@@ -87,20 +88,20 @@ export const ShapeFinderTab = () => {
       );
       if (png) {
         event.preventDefault();
-        useReferenceFile(png);
+        selectReferenceFile(png);
       }
     };
 
     document.addEventListener("paste", handlePaste);
     return () => document.removeEventListener("paste", handlePaste);
-  }, [useReferenceFile]);
+  }, [selectReferenceFile]);
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragging(false);
     const file = event.dataTransfer.files[0];
     if (file) {
-      useReferenceFile(file);
+      selectReferenceFile(file);
     }
   };
 
@@ -109,7 +110,7 @@ export const ShapeFinderTab = () => {
       return;
     }
     loadShapeFinderDemoScene(excalidrawAPI);
-    useReferenceFile(await loadShapeFinderReferenceFile());
+    selectReferenceFile(await loadShapeFinderReferenceFile());
   };
 
   const removeReference = () => {
@@ -160,7 +161,7 @@ export const ShapeFinderTab = () => {
         onChange={(event) => {
           const file = event.target.files?.[0];
           if (file) {
-            useReferenceFile(file);
+            selectReferenceFile(file);
           }
         }}
       />

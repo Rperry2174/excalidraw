@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
+import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
+
 import { focusElement, getShapeFinderCandidates } from "./canvasTools";
 import { createDemoSceneElements } from "./demoScene";
-
-import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 
 describe("Shape Finder canvas tools", () => {
   it("groups the demo target into one of six visual candidates", () => {

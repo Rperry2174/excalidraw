@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
+
 import {
   SHAPE_FINDER_MAX_IMAGE_BYTES,
   SHAPE_FINDER_PORT,
@@ -9,9 +11,8 @@ import {
   type ShapeFinderTimelineStatus,
   type ShapeFinderTimelineStep,
 } from "../../shape-finder-agent/protocol";
-import { focusElement, getElementThumbnails } from "./canvasTools";
 
-import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
+import { focusElement, getElementThumbnails } from "./canvasTools";
 
 export type ShapeFinderConnectionStatus =
   | "connecting"

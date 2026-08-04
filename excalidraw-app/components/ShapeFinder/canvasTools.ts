@@ -2,6 +2,7 @@ import { exportToCanvas, getCommonBounds } from "@excalidraw/excalidraw";
 
 import type { NonDeletedExcalidrawElement } from "@excalidraw/element/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
+
 import type { ShapeFinderThumbnail } from "../../shape-finder-agent/protocol";
 
 const MAX_CANDIDATES = 24;
