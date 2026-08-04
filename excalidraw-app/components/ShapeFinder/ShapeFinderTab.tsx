@@ -4,6 +4,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type ClipboardEvent,
   type DragEvent,
 } from "react";
 
@@ -72,6 +73,9 @@ export const ShapeFinderTab = () => {
 
   const selectReferenceFile = useCallback(
     (file: File) => {
+      if (isRunning) {
+        return;
+      }
       if (file.type !== "image/png") {
         setFileError("Choose a PNG image.");
         return;
@@ -86,23 +90,22 @@ export const ShapeFinderTab = () => {
       setFileError(null);
       resetRun();
     },
-    [resetRun],
+    [isRunning, resetRun],
   );
 
-  useEffect(() => {
-    const handlePaste = (event: ClipboardEvent) => {
-      const png = Array.from(event.clipboardData?.files || []).find(
-        (file) => file.type === "image/png",
-      );
-      if (png) {
-        event.preventDefault();
-        selectReferenceFile(png);
-      }
-    };
+  const handlePaste = (event: ClipboardEvent<HTMLElement>) => {
+    if (isRunning || searchMode !== "image") {
+      return;
+    }
 
-    document.addEventListener("paste", handlePaste);
-    return () => document.removeEventListener("paste", handlePaste);
-  }, [selectReferenceFile]);
+    const png = Array.from(event.clipboardData?.files || []).find(
+      (file) => file.type === "image/png",
+    );
+    if (png) {
+      event.preventDefault();
+      selectReferenceFile(png);
+    }
+  };
 
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -152,7 +155,11 @@ export const ShapeFinderTab = () => {
     : null;
 
   return (
-    <section className="shape-finder" aria-label="Shape Finder">
+    <section
+      className="shape-finder"
+      aria-label="Shape Finder"
+      onPaste={handlePaste}
+    >
       <div className="shape-finder__intro">
         <div>
           <h2>Shape Finder</h2>
