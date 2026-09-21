@@ -24,8 +24,8 @@ export const ELEMENT_TRANSLATE_AMOUNT = 1;
 export const TEXT_TO_CENTER_SNAP_THRESHOLD = 30;
 export const SHIFT_LOCKING_ANGLE = Math.PI / 12;
 export const DEFAULT_LASER_COLOR = "red";
-// radius (half-width) of the laser trail in CSS px — the rendered trail is
-// twice this wide at full opacity, before the length/time taper is applied
+// outline radius of the laser trail in CSS px; the rendered trail is twice
+// this wide before the length/time taper is applied
 export const LASER_TRAIL_SIZE = 4;
 export const CURSOR_TYPE = {
   TEXT: "text",

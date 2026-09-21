@@ -172,9 +172,10 @@ describe("laser tool interactions", () => {
 
       const width = await drawAndMeasureTrailWidth(new Pointer(pointerType));
 
-      // the trail is thicker than what the laser-pointer library ships with
+      // thicker than the laser-pointer library default the trail used to fall
+      // back to
       expect(width).toBeGreaterThan(LaserPointer.defaults.size * 2);
-      // `size` is the outline radius, so the trail is twice as wide as it
+      // `size` is an outline radius, so the trail renders twice as wide
       expect(width).toBeCloseTo(LASER_TRAIL_SIZE * 2, 0);
     },
   );
