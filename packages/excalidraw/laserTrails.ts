@@ -9,6 +9,21 @@ import type { Trail } from "./animatedTrail";
 import type App from "./components/App";
 import type { SocketId } from "./types";
 
+/** beam half-width, in viewport pixels */
+const LASER_SIZE = 1.5;
+
+/**
+ * Minimum gap between two trail points, in viewport pixels.
+ *
+ * Trackpads report pointer moves several times more densely than mice, and
+ * each sample carries sub-pixel tremor. Without a floor, the trail follows the
+ * device's event rate rather than the path drawn: consecutive points sit
+ * closer together than the tremor is wide, so the beam direction flips back
+ * and forth, and the fade (which counts points, not distance) burns through
+ * its window within a few dozen pixels.
+ */
+const MIN_POINT_SPACING = 2;
+
 export class LaserTrails implements Trail {
   public localTrail: AnimatedTrail;
   private collabTrails = new Map<SocketId, AnimatedTrail>();
@@ -25,6 +40,7 @@ export class LaserTrails implements Trail {
     return {
       simplify: 0,
       streamline: 0.4,
+      size: LASER_SIZE,
       sizeMapping: (c) => {
         const DECAY_TIME = 1000;
         const DECAY_LENGTH = 50;
@@ -42,12 +58,32 @@ export class LaserTrails implements Trail {
     } as Partial<LaserPointerOptions>;
   }
 
+  /**
+   * Resamples the pointer stream to `MIN_POINT_SPACING` so that the trail
+   * shape depends on the distance travelled instead of on how densely the
+   * pointing device reports moves.
+   */
+  private addPointToTrail(trail: AnimatedTrail, x: number, y: number) {
+    const points = trail.getCurrentTrail()?.originalPoints;
+    const lastPoint = points?.[points.length - 1];
+
+    if (
+      lastPoint &&
+      Math.hypot(x - lastPoint[0], y - lastPoint[1]) <
+        MIN_POINT_SPACING / this.app.state.zoom.value
+    ) {
+      return;
+    }
+
+    trail.addPointToPath(x, y);
+  }
+
   startPath(x: number, y: number): void {
     this.localTrail.startPath(x, y);
   }
 
   addPointToPath(x: number, y: number): void {
-    this.localTrail.addPointToPath(x, y);
+    this.addPointToTrail(this.localTrail, x, y);
   }
 
   endPath(): void {
@@ -121,7 +157,11 @@ export class LaserTrails implements Trail {
           collaborator.pointer.y,
         );
         if (buttonDown && lastPointOriginal) {
-          trail.addPointToPath(collaborator.pointer.x, collaborator.pointer.y);
+          this.addPointToTrail(
+            trail,
+            collaborator.pointer.x,
+            collaborator.pointer.y,
+          );
         }
 
         // End the trail on button up
