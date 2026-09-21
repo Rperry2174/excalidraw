@@ -1,7 +1,8 @@
 import { vi } from "vitest";
 
-import { CURSOR_TYPE } from "@excalidraw/common";
+import { CURSOR_TYPE, LASER_TRAIL_SIZE } from "@excalidraw/common";
 import { getElementAbsoluteCoords } from "@excalidraw/element";
+import { LaserPointer } from "@excalidraw/laser-pointer";
 
 import { Excalidraw } from "../index";
 import { getLinkHandleFromCoords } from "../components/hyperlink/helpers";
@@ -11,6 +12,37 @@ import { Pointer } from "./helpers/ui";
 import { act, GlobalTestState, render, waitFor } from "./test-utils";
 
 import type { Collaborator, ExcalidrawProps, SocketId } from "../types";
+
+/**
+ * Draws a straight horizontal laser stroke and returns the widest
+ * perpendicular extent of the rendered trail outline, in viewport px.
+ */
+const drawAndMeasureTrailWidth = async (pointer: Pointer) => {
+  const y = 300;
+
+  pointer.downAt(120, y);
+  for (let x = 130; x <= 360; x += 10) {
+    pointer.moveTo(x, y);
+  }
+
+  const outline = await waitFor(() => {
+    const path = document.querySelector<SVGPathElement>(".SVGLayer svg path");
+    const d = path?.getAttribute("d");
+    expect(d).toBeTruthy();
+    return d!;
+  });
+
+  const coords = (outline.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number);
+
+  let minY = Infinity;
+  let maxY = -Infinity;
+  for (let i = 1; i < coords.length; i += 2) {
+    minY = Math.min(minY, coords[i]);
+    maxY = Math.max(maxY, coords[i]);
+  }
+
+  return maxY - minY;
+};
 
 describe("laser tool interactions", () => {
   const h = window.h;
@@ -128,6 +160,24 @@ describe("laser tool interactions", () => {
     expect(h.state.scrollY).toBe(initialScrollY);
     expect(GlobalTestState.interactiveCanvas.style.cursor).toContain("");
   });
+
+  it.each(["mouse", "touch", "pen"] as const)(
+    "renders the trail at the laser thickness for %s input",
+    async (pointerType) => {
+      await render(<Excalidraw />);
+
+      act(() => {
+        h.app.setActiveTool({ type: "laser" });
+      });
+
+      const width = await drawAndMeasureTrailWidth(new Pointer(pointerType));
+
+      // the trail is thicker than what the laser-pointer library ships with
+      expect(width).toBeGreaterThan(LaserPointer.defaults.size * 2);
+      // `size` is the outline radius, so the trail is twice as wide as it
+      expect(width).toBeCloseTo(LASER_TRAIL_SIZE * 2, 0);
+    },
+  );
 
   it("cleans up remote laser trails when the last collaborator leaves", async () => {
     await render(<Excalidraw />);
