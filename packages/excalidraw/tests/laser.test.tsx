@@ -1,7 +1,8 @@
 import { vi } from "vitest";
 
-import { CURSOR_TYPE } from "@excalidraw/common";
+import { CURSOR_TYPE, LASER_TRAIL_SIZE } from "@excalidraw/common";
 import { getElementAbsoluteCoords } from "@excalidraw/element";
+import { LaserPointer } from "@excalidraw/laser-pointer";
 
 import { Excalidraw } from "../index";
 import { getLinkHandleFromCoords } from "../components/hyperlink/helpers";
@@ -159,5 +160,92 @@ describe("laser tool interactions", () => {
     });
 
     expect(svgLayer.querySelectorAll("path")).toHaveLength(0);
+  });
+});
+
+describe("laser trail thickness", () => {
+  const h = window.h;
+
+  // trail outline is offset from the stroke centerline by the trail size, so a
+  // horizontal stroke spans twice the size across
+  const measureTrailWidth = (trail: LaserPointer, size: number) => {
+    const ys = trail.getStrokeOutline(size).map(([, y]) => y);
+
+    return Math.max(...ys) - Math.min(...ys);
+  };
+
+  const drawTrail = (pointer: Pointer) => {
+    act(() => {
+      h.app.setActiveTool({ type: "laser" });
+    });
+
+    pointer.downAt(100, 100);
+    pointer.moveTo(140, 100);
+    pointer.moveTo(180, 100);
+    pointer.moveTo(220, 100);
+
+    const trail = h.app.laserTrails.localTrail.getCurrentTrail();
+    expect(trail).toBeDefined();
+
+    return trail!;
+  };
+
+  it("draws the local laser trail at twice the laser-pointer default size", async () => {
+    await render(<Excalidraw />);
+
+    const trail = drawTrail(new Pointer("mouse"));
+
+    expect(LASER_TRAIL_SIZE).toBe(LaserPointer.defaults.size * 2);
+    expect(trail.options.size).toBe(LASER_TRAIL_SIZE);
+
+    const width = measureTrailWidth(trail, trail.options.size);
+    const previousWidth = measureTrailWidth(trail, LaserPointer.defaults.size);
+
+    expect(width / previousWidth).toBeCloseTo(2, 1);
+  });
+
+  it.each([
+    // trackpads report themselves as "mouse" pointers
+    ["mouse"],
+    ["touch"],
+    ["pen"],
+  ] as const)(
+    "draws the laser trail at the same size for %s",
+    async (pointerType) => {
+      await render(<Excalidraw />);
+
+      const trail = drawTrail(new Pointer(pointerType));
+
+      expect(trail.options.size).toBe(LASER_TRAIL_SIZE);
+    },
+  );
+
+  it("draws remote laser trails at the same size", async () => {
+    await render(<Excalidraw />);
+
+    act(() => {
+      h.app.updateScene({
+        collaborators: new Map<SocketId, Collaborator>([
+          [
+            "socket-id" as SocketId,
+            {
+              pointer: { x: 10, y: 10, tool: "laser" },
+              button: "down",
+            },
+          ],
+        ]),
+      });
+    });
+
+    const remoteTrail = document.querySelector(".SVGLayer svg path")!;
+    // a single remote point renders as a dot the width of the whole trail
+    const ys = [
+      ...remoteTrail.getAttribute("d")!.matchAll(/-?[\d.]+,(-?[\d.]+)/g),
+    ].map(([, y]) => Number(y));
+
+    expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(
+      LASER_TRAIL_SIZE * 2,
+      0,
+    );
   });
 });
