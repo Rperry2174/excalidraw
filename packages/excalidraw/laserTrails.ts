@@ -9,6 +9,12 @@ import type { Trail } from "./animatedTrail";
 import type App from "./components/App";
 import type { SocketId } from "./types";
 
+/**
+ * Half-thickness of the laser trail. The trail is scaled by the inverse of the
+ * zoom before rendering, so this is a constant ~8px wide stroke on screen.
+ */
+export const LASER_TRAIL_SIZE = 4;
+
 export class LaserTrails implements Trail {
   public localTrail: AnimatedTrail;
   private collabTrails = new Map<SocketId, AnimatedTrail>();
@@ -23,6 +29,7 @@ export class LaserTrails implements Trail {
 
   private getTrailOptions() {
     return {
+      size: LASER_TRAIL_SIZE,
       simplify: 0,
       streamline: 0.4,
       sizeMapping: (c) => {

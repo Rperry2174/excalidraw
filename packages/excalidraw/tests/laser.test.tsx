@@ -2,8 +2,10 @@ import { vi } from "vitest";
 
 import { CURSOR_TYPE } from "@excalidraw/common";
 import { getElementAbsoluteCoords } from "@excalidraw/element";
+import { LaserPointer } from "@excalidraw/laser-pointer";
 
 import { Excalidraw } from "../index";
+import { LASER_TRAIL_SIZE } from "../laserTrails";
 import { getLinkHandleFromCoords } from "../components/hyperlink/helpers";
 
 import { API } from "./helpers/api";
@@ -11,6 +13,15 @@ import { Pointer } from "./helpers/ui";
 import { act, GlobalTestState, render, waitFor } from "./test-utils";
 
 import type { Collaborator, ExcalidrawProps, SocketId } from "../types";
+
+/** vertical extent of an SVG path, derived from its `x,y` coordinate pairs */
+const getPathHeight = (d: string) => {
+  const ys = (d.match(/-?[\d.]+,-?[\d.]+/g) ?? []).map((pair) =>
+    Number(pair.split(",")[1]),
+  );
+
+  return Math.max(...ys) - Math.min(...ys);
+};
 
 describe("laser tool interactions", () => {
   const h = window.h;
@@ -127,6 +138,40 @@ describe("laser tool interactions", () => {
     expect(h.state.scrollX).toBe(initialScrollX);
     expect(h.state.scrollY).toBe(initialScrollY);
     expect(GlobalTestState.interactiveCanvas.style.cursor).toContain("");
+  });
+
+  it("draws the laser trail thicker than the laser-pointer default", async () => {
+    await render(<Excalidraw />);
+
+    act(() => {
+      h.app.setActiveTool({ type: "laser" });
+    });
+
+    mouse.downAt(100, 100);
+    mouse.moveTo(180, 100);
+
+    const trail = h.app.laserTrails.localTrail.getCurrentTrail()!;
+    expect(trail).toBeDefined();
+    expect(trail.options.size).toBe(LASER_TRAIL_SIZE);
+    expect(LASER_TRAIL_SIZE).toBeGreaterThan(LaserPointer.defaults.size);
+
+    // the stroke is horizontal, so its vertical extent is its thickness
+    const ys = trail
+      .getStrokeOutline(trail.options.size / h.state.zoom.value)
+      .map(([, y]) => y);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeCloseTo(
+      LASER_TRAIL_SIZE * 2,
+      1,
+    );
+
+    const trailPath = document.querySelector(".SVGLayer svg path")!;
+    await waitFor(() => expect(trailPath.getAttribute("d")).toBeTruthy());
+
+    const renderedThickness = getPathHeight(trailPath.getAttribute("d")!);
+    expect(renderedThickness).toBeGreaterThan(LaserPointer.defaults.size * 2);
+    expect(renderedThickness).toBeLessThanOrEqual(LASER_TRAIL_SIZE * 2);
+
+    mouse.upAt(180, 100);
   });
 
   it("cleans up remote laser trails when the last collaborator leaves", async () => {
