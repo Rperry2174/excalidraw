@@ -24,6 +24,9 @@ export const ELEMENT_TRANSLATE_AMOUNT = 1;
 export const TEXT_TO_CENTER_SNAP_THRESHOLD = 30;
 export const SHIFT_LOCKING_ANGLE = Math.PI / 12;
 export const DEFAULT_LASER_COLOR = "red";
+// half-width of the laser trail in viewport px, so the trail renders twice
+// this wide
+export const LASER_TRAIL_SIZE = 4;
 export const CURSOR_TYPE = {
   TEXT: "text",
   CROSSHAIR: "crosshair",
