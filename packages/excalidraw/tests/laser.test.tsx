@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 
-import { CURSOR_TYPE } from "@excalidraw/common";
+import { CURSOR_TYPE, LASER_TRAIL_SIZE } from "@excalidraw/common";
 import { getElementAbsoluteCoords } from "@excalidraw/element";
 
 import { Excalidraw } from "../index";
@@ -11,6 +11,26 @@ import { Pointer } from "./helpers/ui";
 import { act, GlobalTestState, render, waitFor } from "./test-utils";
 
 import type { Collaborator, ExcalidrawProps, SocketId } from "../types";
+
+// the trail is a filled outline, so it renders twice as thick as the
+// configured `size` (a radius) — 8px, double the trail this replaces
+const EXPECTED_TRAIL_THICKNESS = 8;
+
+const getTrailBounds = () => {
+  const d =
+    document
+      .querySelector<SVGPathElement>(".SVGLayer svg path")
+      ?.getAttribute("d") ?? "";
+  // `getSvgPathFromStroke` emits the outline as a flat list of x,y pairs
+  const coords = (d.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number);
+  const xs = coords.filter((_, index) => index % 2 === 0);
+  const ys = coords.filter((_, index) => index % 2 === 1);
+
+  return {
+    width: xs.length ? Math.max(...xs) - Math.min(...xs) : 0,
+    height: ys.length ? Math.max(...ys) - Math.min(...ys) : 0,
+  };
+};
 
 describe("laser tool interactions", () => {
   const h = window.h;
@@ -128,6 +148,41 @@ describe("laser tool interactions", () => {
     expect(h.state.scrollY).toBe(initialScrollY);
     expect(GlobalTestState.interactiveCanvas.style.cursor).toContain("");
   });
+
+  describe.each(["mouse", "touch", "pen"] as const)(
+    "trail thickness (%s)",
+    (pointerType) => {
+      it(`renders the trail ${EXPECTED_TRAIL_THICKNESS}px thick`, async () => {
+        await render(<Excalidraw />);
+
+        act(() => {
+          h.app.setActiveTool({ type: "laser" });
+        });
+
+        const pointer = new Pointer(pointerType);
+        const startX = 100;
+        const endX = 300;
+        const y = 150;
+
+        pointer.downAt(startX, y);
+        for (let x = startX + 10; x <= endX; x += 10) {
+          pointer.moveTo(x, y);
+        }
+        pointer.upAt(endX, y);
+
+        // the trail is painted on animation frames, so wait until the whole
+        // stroke (rather than just the initial point) has been rendered
+        let bounds = { width: 0, height: 0 };
+        await waitFor(() => {
+          bounds = getTrailBounds();
+          expect(bounds.width).toBeGreaterThan((endX - startX) / 2);
+        });
+
+        expect(bounds.height).toBeCloseTo(EXPECTED_TRAIL_THICKNESS, 0);
+        expect(LASER_TRAIL_SIZE * 2).toBe(EXPECTED_TRAIL_THICKNESS);
+      });
+    },
+  );
 
   it("cleans up remote laser trails when the last collaborator leaves", async () => {
     await render(<Excalidraw />);
