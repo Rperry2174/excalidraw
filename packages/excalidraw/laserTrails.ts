@@ -1,4 +1,8 @@
-import { DEFAULT_LASER_COLOR, easeOut } from "@excalidraw/common";
+import {
+  DEFAULT_LASER_COLOR,
+  LASER_TRAIL_SIZE,
+  easeOut,
+} from "@excalidraw/common";
 
 import type { LaserPointerOptions } from "@excalidraw/laser-pointer";
 
@@ -23,6 +27,7 @@ export class LaserTrails implements Trail {
 
   private getTrailOptions() {
     return {
+      size: LASER_TRAIL_SIZE,
       simplify: 0,
       streamline: 0.4,
       sizeMapping: (c) => {
